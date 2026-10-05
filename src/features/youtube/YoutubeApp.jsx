@@ -1,29 +1,43 @@
-/* TEMPORARY STUB — replace when YouTube feature is migrated */
+import { useEffect, useState } from 'react'
+import { DemoShell } from './DemoShell'
+import { PlatformSelection } from './screens/PlatformSelection'
+import { screenFromHash } from './types'
+import './styles/workspace.css'
+import './styles/intelligence.css'
+import './styles/premium.css'
 
 export function YoutubeApp() {
-  return (
-    <main
-      style={{
-        display: 'grid',
-        placeItems: 'center',
-        minHeight: '100vh',
-        padding: '48px 24px',
-        textAlign: 'center',
-        background: 'var(--canvas)',
-        color: 'var(--text)',
-      }}
-    >
-      <div>
-        <p style={{ margin: '0 0 12px', color: 'var(--accent)', fontSize: 12, fontWeight: 800, letterSpacing: '.1em', textTransform: 'uppercase' }}>
-          Test Demo
-        </p>
-        <h1 style={{ margin: '0 0 12px', fontFamily: 'var(--font-display)', fontSize: 'clamp(28px, 4vw, 40px)', fontWeight: 800 }}>
-          Coming soon
-        </h1>
-        <p style={{ color: 'var(--text-muted)' }}>
-          The YouTube test demo is being migrated. Check back shortly.
-        </p>
-      </div>
-    </main>
-  )
+  const [screen, setScreen] = useState(screenFromHash)
+
+  useEffect(() => {
+    const previousTitle = document.title
+    document.title = 'YouTube Intelligence | LeadHive AI'
+    const onHashChange = () => setScreen(screenFromHash())
+    window.addEventListener('hashchange', onHashChange)
+    return () => {
+      document.title = previousTitle
+      window.removeEventListener('hashchange', onHashChange)
+    }
+  }, [])
+
+  function navigate(next) {
+    window.location.hash = next
+  }
+
+  function renderScreen() {
+    switch (screen) {
+      case 'platform':
+        return <PlatformSelection navigate={navigate} />
+      default:
+        return (
+          <div className="td-heading">
+            <p className="td-eyebrow">YouTube Intelligence</p>
+            <h1 tabIndex={-1}>{screen}</h1>
+            <p className="td-description">This screen is coming in the next batch.</p>
+          </div>
+        )
+    }
+  }
+
+  return <DemoShell screen={screen}>{renderScreen()}</DemoShell>
 }
