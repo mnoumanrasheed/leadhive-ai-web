@@ -4,11 +4,11 @@ React (JavaScript / JSX) website for the LeadHive platform: a marketing site plu
 
 ## Design Principles
 
-1. **Feature-based.** Each product feature is a self-contained folder that owns its data, service, hooks, components and pages.
+1. **Feature-based.** Each product feature is a self-contained folder owning its content, demo, and (only if needed) service and hooks.
 2. **One-way dependencies.** `app` -> `features` -> `shared`. Never the reverse.
-3. **Features are isolated.** A feature never imports from another feature.
-4. **Registry-driven.** Nav, feature grid and routes are generated from a list of feature manifests. Adding a feature never requires editing marketing code.
-5. **Strict layering inside a feature.** Component -> Hook -> Service -> Shared API client.
+3. **Features are isolated.** A feature never imports from another feature, and nothing outside `app` imports more than one feature.
+4. **Content-driven.** A feature exports data plus one Demo component. Generic templates render the feature page, home card and nav. Adding a feature needs no page code.
+5. **Layers only when needed.** `services/` and `hooks/` exist only in features that call a backend.
 6. **Tailwind only.** No custom CSS, no CSS Modules, no inline `style`, no `@apply`.
 
 ## Stack
@@ -16,16 +16,15 @@ React (JavaScript / JSX) website for the LeadHive platform: a marketing site plu
 | Concern | Choice |
 |---|---|
 | Build | Vite + React (JavaScript, JSX) |
-| Routing | React Router (lazy-loaded feature routes) |
-| Server state | TanStack Query |
+| Routing | React Router (lazy-loaded demos) |
+| Server state | TanStack Query (only for features hitting an API) |
 | Styling | Tailwind CSS v4 (`@tailwindcss/vite`) |
-| Class helpers | `clsx` + `tailwind-merge` (`cn()`), `class-variance-authority` (variants) |
-| Icons | `lucide-react` |
-| Props validation | `prop-types` |
-| Lint / format | ESLint (+ `eslint-plugin-boundaries`), Prettier (+ `prettier-plugin-tailwindcss`) |
+| UI kit | shadcn/ui (Radix + `cva` + `cn`), icons from `lucide-react` |
+| SEO | `react-helmet-async` via a shared `Seo` component |
+| Type safety | `checkJs` + JSDoc typedefs (no TypeScript) |
+| Lint / format | ESLint (`eslint-plugin-boundaries`, `jsx-a11y`), Prettier (+ `prettier-plugin-tailwindcss`) |
 | Tests | Vitest + React Testing Library |
-| Git hooks | Husky + lint-staged |
-| CI | GitHub Actions (lint, test, build) |
+| Git hooks / CI | Husky + lint-staged, GitHub Actions (lint, test, build) |
 
 ## File Structure
 
@@ -33,106 +32,104 @@ React (JavaScript / JSX) website for the LeadHive platform: a marketing site plu
 leadhive-web/
 ├── .github/workflows/ci.yml
 ├── .husky/pre-commit
-├── public/
+├── public/                          # favicon, og-image.png
 ├── src/
-│   ├── app/                         # Composition root (only place that knows all features)
+│   ├── app/                         # Composition root (ONLY place importing all features)
 │   │   ├── main.jsx
 │   │   ├── App.jsx
-│   │   ├── providers.jsx            # QueryClientProvider, Router, ErrorBoundary
+│   │   ├── providers.jsx            # HelmetProvider, QueryClientProvider, Router, ErrorBoundary
 │   │   ├── router.jsx               # Routes generated from the registry
 │   │   └── registry.js              # Array of all feature manifests
 │   │
-│   ├── shared/                      # Feature-agnostic building blocks
-│   │   ├── api/
-│   │   │   └── httpClient.js        # Base fetch wrapper (base URL, errors, timeouts)
-│   │   ├── config/
-│   │   │   └── env.js               # Central, validated access to import.meta.env
-│   │   ├── ui/                      # Button, Card, Badge, Modal, Spinner (cva + cn)
-│   │   ├── layouts/                 # SiteLayout, Navbar, Footer
-│   │   ├── components/              # ErrorBoundary, PageLoader, NotFound
-│   │   ├── hooks/                   # useMediaQuery, useDebounce, ...
-│   │   ├── lib/
-│   │   │   └── cn.js                # clsx + tailwind-merge helper
-│   │   ├── constants/
-│   │   │   └── featureStatus.js     # LIVE / BETA / COMING_SOON
-│   │   └── styles/
-│   │       └── theme.css            # Tailwind entry: @import + @theme tokens ONLY
-│   │
 │   ├── features/
-│   │   ├── marketing/               # Platform-level pages (not a product feature)
-│   │   │   ├── pages/               # HomePage, PricingPage, ContactPage
+│   │   ├── marketing/               # Platform pages. Props-driven, never imports the registry
+│   │   │   ├── pages/               # HomePage, FeaturePage (generic template), PricingPage, ContactPage
 │   │   │   ├── sections/            # Hero, FeatureGrid, HowItWorks, CTA
-│   │   │   ├── components/
-│   │   │   └── index.js
-│   │   │
-│   │   ├── demo/                    # Generic demo framework
-│   │   │   ├── components/
-│   │   │   │   └── DemoShell.jsx    # Frame, header, reset, disclaimer, loading/error states
-│   │   │   ├── pages/
-│   │   │   │   └── DemoPage.jsx     # Resolves :slug -> feature Demo component
+│   │   │   ├── components/          # FeatureCard, StepList, StatusBadge
 │   │   │   └── index.js
 │   │   │
 │   │   ├── youtube/                 # Product feature: YouTube auto-reply bot
-│   │   │   ├── data/
-│   │   │   │   ├── content.js       # Static marketing copy, steps, bullets
-│   │   │   │   └── mock.js          # Fallback/demo seed data
-│   │   │   ├── services/
-│   │   │   │   └── youtube.service.js   # Connection layer: backend calls via httpClient
-│   │   │   ├── hooks/
-│   │   │   │   ├── useDemoVideo.js
-│   │   │   │   └── useDemoComments.js
-│   │   │   ├── components/          # CommentList, CommentForm, VideoEmbed, YoutubeIcon
-│   │   │   ├── pages/
-│   │   │   │   ├── YoutubeFeaturePage.jsx
-│   │   │   │   └── YoutubeDemo.jsx
-│   │   │   ├── sections/
-│   │   │   │   └── YoutubeSection.jsx
+│   │   │   ├── content.js           # Marketing copy, steps, benefits (pure data)
+│   │   │   ├── Demo.jsx             # Interactive demo (lazy-loaded)
+│   │   │   ├── components/          # CommentList, CommentForm, VideoEmbed
+│   │   │   ├── services/            # youtube.service.js (backend calls)
+│   │   │   ├── hooks/               # useDemoVideo.js, useDemoComments.js
+│   │   │   ├── mock.js              # Fallback data if the API fails
 │   │   │   ├── __tests__/
 │   │   │   ├── manifest.js
 │   │   │   └── index.js             # Public API: exports manifest only
 │   │   │
 │   │   └── tis-leads/               # Product feature: TIS visa lead generator
-│   │       ├── data/                # content.js, scripted-conversation.js
-│   │       ├── services/            # tis.service.js (only if demo hits a real endpoint)
-│   │       ├── hooks/               # useChatDemo.js
+│   │       ├── content.js
+│   │       ├── Demo.jsx             # Scripted chat demo (local state, no service needed)
 │   │       ├── components/          # ChatWindow, MessageBubble, LeadScoreCard
-│   │       ├── pages/
-│   │       ├── sections/
-│   │       ├── __tests__/
+│   │       ├── script.js            # Scripted conversation data
 │   │       ├── manifest.js
 │   │       └── index.js
 │   │
-│   └── test/
-│       └── setup.js                 # Vitest + Testing Library setup
+│   ├── shared/                      # Feature-agnostic. Imports nothing from features/app
+│   │   ├── ui/                      # shadcn/ui components (Button, Card, Dialog, Tabs, ...)
+│   │   ├── components/              # DemoShell, Seo, ErrorBoundary, PageLoader, NotFound
+│   │   ├── layouts/                 # SiteLayout, Navbar, Footer (props-driven nav items)
+│   │   ├── api/httpClient.js        # Base fetch wrapper (base URL, errors, timeout)
+│   │   ├── config/env.js            # Validated access to import.meta.env
+│   │   ├── hooks/                   # useMediaQuery, useDebounce
+│   │   ├── lib/cn.js                # clsx + tailwind-merge
+│   │   ├── constants/featureStatus.js
+│   │   ├── types.js                 # JSDoc typedefs (FeatureManifest, FeatureContent)
+│   │   └── styles/theme.css         # Tailwind entry: @import + @theme tokens ONLY
+│   │
+│   └── test/setup.js
 │
 ├── .env.example
 ├── .prettierrc
-├── eslint.config.js                 # Includes dependency-boundary rules
+├── components.json                  # shadcn/ui config
+├── eslint.config.js
 ├── index.html
-├── jsconfig.json                    # Path alias for editor support
+├── jsconfig.json                    # alias + "checkJs": true
 ├── package.json
-├── vite.config.js                   # Tailwind plugin, path alias, Vitest config
+├── vite.config.js
 └── README.md
 ```
+
+## Dependency Rules
+
+- `shared` imports nothing from `features` or `app`.
+- `features/*` import only from `shared`.
+- `features/*` never import sibling features.
+- Outside code imports a feature only through its `index.js`.
+- `marketing` receives features as props (from `app`), so it never imports the registry or other features.
+- `app` is the only layer that imports multiple features.
+
+Enforced with `eslint-plugin-boundaries` so violations fail lint and CI.
+
+
+| Route | Renders |
+|---|---|
+| `/` | `HomePage` (feature grid from `features` prop) |
+| `/features/:slug` | generic `FeaturePage` driven by `manifest.content` |
+| `/demo/:slug` | `manifest.Demo` inside `shared/components/DemoShell` |
+| `*` | `NotFound` |
+
+## Inside a Feature
+
+| File / folder | Owns | Must NOT |
+|---|---|---|
+| `content.js` | Pure data (copy, steps, benefits) | Import React or fetch |
+| `Demo.jsx` | Composes components + hooks | Call `fetch` directly |
+| `components/` | Presentational UI (Tailwind classes) | Call services directly |
+| `hooks/` | Server state (TanStack Query), demo state | Call `fetch` directly, render JSX |
+| `services/` | Backend calls via `httpClient`, request/response mapping | Import React, hold UI state |
+| `mock.js` | Fallback data | Be imported by other features |
+
+Data flow (features with a backend): `Component -> Hook -> Service -> shared/api/httpClient -> Backend`.
+Scripted demos (e.g. TIS): `Component -> local state`, no hooks or services.
 
 ## Styling Rules (Tailwind only)
 
 - All styling is Tailwind utility classes in JSX.
-- The only stylesheet is `src/shared/styles/theme.css`. It contains the Tailwind import and design tokens, never component rules.
-- No `*.css` or `*.module.css` files in features, no inline `style={{}}`, no `@apply`.
-- Design tokens (brand colors, fonts, radii) live in `@theme` so they become utilities like `bg-brand-500`.
-- Reusable look and feel is a React component, not a CSS class. Variants use `cva`, conditional/merged classes use `cn()`.
-- Dark mode and responsiveness use Tailwind variants (`dark:`, `md:`), never custom media queries.
-- Prettier sorts class names automatically via `prettier-plugin-tailwindcss`.
-
-## Layer Responsibilities (inside a feature)
-
-| Layer | Owns | Must NOT |
-|---|---|---|
-| `data/` | Static content, mock/seed data | Fetch anything, import React |
-| `services/` | API calls, request/response mapping | Import React, hold UI state |
-| `hooks/` | Server state (TanStack Query), demo state, orchestration | Call `fetch` directly, render JSX |
-| `components/` | Presentational UI (Tailwind classes) | Call services directly |
-| `pages/` / `sections/` | Compose components + hooks | Contain business logic |
-
-Data flow: `Component -> Hook -> Service -> shared/api/httpClient -> Backend`
+- The only stylesheet is `src/shared/styles/theme.css`: the Tailwind import plus `@theme` design tokens, never component rules.
+- No `*.css` or `*.module.css` in features, no inline `style={{}}`, no `@apply`.
+- Reusable look and feel is a React component, not a CSS class. Variants use `cva`, merged classes use `cn()`.
+- Dark mode and responsiveness use Tailwind variants (`dark:`, `md:`).
+- Prettier sorts classes automatically.
