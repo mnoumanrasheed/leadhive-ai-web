@@ -9,11 +9,20 @@ import {
 } from './api'
 
 const CHANNEL_STORAGE_KEY = 'leadhive.youtube.channel_id'
-const blankProfile = { business_name: '', website: '', services: '', brand_tone: '', ai_rules: '' }
-const blankSchedule = { mode: 'all', target_date: '', start_time: '', end_time: '' }
+const blankProfile = {
+  business_name: '',
+  website: '',
+  services: '',
+  brand_tone: '',
+  ai_rules: '',
+}
+const blankSchedule = {
+  mode: 'all',
+  target_date: '',
+  start_time: '',
+  end_time: '',
+}
 const emptySession = { channels: [], selected: null, csrf: '' }
-
-// ─── Helpers ────────────────────────────────────────────────────────────
 
 function stringValue(value) {
   return typeof value === 'string' && value.trim() ? value.trim() : null
@@ -25,16 +34,24 @@ function nullableString(value) {
 }
 
 function rememberSelectedChannelId(channelId) {
-  try { window.localStorage.setItem(CHANNEL_STORAGE_KEY, channelId) } catch { /* noop */ }
+  try {
+    window.localStorage.setItem(CHANNEL_STORAGE_KEY, channelId)
+  } catch {
+    /* noop */
+  }
 }
 
 function forgetSelectedChannelId() {
-  try { window.localStorage.removeItem(CHANNEL_STORAGE_KEY) } catch { /* noop */ }
+  try {
+    window.localStorage.removeItem(CHANNEL_STORAGE_KEY)
+  } catch {
+    /* noop */
+  }
 }
 
 function readSelectedChannelId() {
   const params = new URLSearchParams(window.location.search)
-  for (const key of ['channel_id', 'channel', 'selected_channel', 'id']) {
+  for (const key of ['channelId', 'channel_id', 'channel', 'selected_channel', 'id']) {
     const value = stringValue(params.get(key))
     if (value) return value
   }
@@ -46,36 +63,54 @@ function readSelectedChannelId() {
 }
 
 function readAuthResult() {
-  const auth = new URLSearchParams(window.location.search).get('auth')
+  const params = new URLSearchParams(window.location.search)
+  if (params.has('error')) return 'failed'
+  const auth = params.get('auth')
   if (!auth) return null
   return auth === 'failed' ? 'failed' : 'success'
 }
 
-function clearAuthParams() {
-  const url = new URL(window.location.href)
-  if (!url.searchParams.has('auth')) return
-  url.searchParams.delete('auth')
-  url.searchParams.delete('channel_id')
-  window.history.replaceState(null, '', url.pathname + url.search + url.hash)
+function readAuthFailureReason() {
+  if (readAuthResult() !== 'failed') return null
+  return stringValue(new URLSearchParams(window.location.search).get('reason')) || 'oauth_failed'
 }
 
 function parseChannel(raw) {
   if (!raw || typeof raw !== 'object') return null
   const item = raw
-  const id = stringValue(item.id) || stringValue(item.channel_id) || stringValue(item.channelId)
+
+  const id =
+    stringValue(item.id) ||
+    stringValue(item.channel_id) ||
+    stringValue(item.channelId) ||
+    stringValue(item.youtube_channel_id)
+
   if (!id) return null
+
   return {
     id,
-    title: stringValue(item.title) || stringValue(item.channel_title) || stringValue(item.name) || id,
-    thumbnail: stringValue(item.thumbnail) || stringValue(item.thumbnail_url) || '',
-    subscribers: nullableString(item.subscribers ?? item.subscriber_count),
-    views: nullableString(item.views ?? item.view_count),
-    videos: nullableString(item.videos ?? item.video_count),
+    title:
+      stringValue(item.title) ||
+      stringValue(item.channel_title) ||
+      stringValue(item.name) ||
+      stringValue(item.channel_name) ||
+      id,
+    thumbnail:
+      stringValue(item.thumbnail) ||
+      stringValue(item.thumbnail_url) ||
+      stringValue(item.channel_thumbnail) ||
+      '',
+    subscribers: nullableString(
+      item.subscribers ?? item.subscriber_count ?? item.channel_subscribers,
+    ),
+    views: nullableString(item.views ?? item.view_count ?? item.channel_views),
+    videos: nullableString(
+      item.videos ?? item.video_count ?? item.channel_videos ?? item.channel_video_count,
+    ),
   }
 }
 
 function extractChannels(payload) {
-  // Backend may return { channels: [...] } or [...] directly
   const list = Array.isArray(payload)
     ? payload
     : Array.isArray(payload?.channels)
@@ -93,6 +128,7 @@ function extractAuthFlag(payload) {
     if (payload.authenticated === true) return true
     if (payload.authenticated === false) return false
     if (payload.logged_in === true) return true
+    if (payload.user_id || payload.userId) return true
     if (payload.user || payload.email) return true
     if (payload.id || payload.sub) return true
   }
@@ -107,70 +143,97 @@ function isUnauthorized(error) {
   return error instanceof YoutubeApiError && error.status === 401
 }
 
-// ─── Generic resource hook ─────────────────────────────────────────────
+function authenticationErrorMessage(error, phase) {
+  const endpoint = phase === 'channels' ? '/auth/channels' : '/auth/me'
 
-export function useYoutubeResource(path, refresh = 0) {
-  const [data, setData] = useState(null)
-  const [error, setError] = useState('')
-  const [status, setStatus] = useState(null)
-  const [loading, setLoading] = useState(false)
+  if (error instanceof YoutubeApiError) {
+    if (error.status === 404) {
+      return `The configured backend does not provide ${endpoint}. Verify the backend URL and restart Vite.`
+    }
+    if (error.code === 'timeout') return 'The authentication service timed out. Please try again.'
+    if (error.code === 'network') return 'Unable to reach the configured authentication service.'
+    if (error.status && error.status >= 500) {
+      return 'The authentication service is temporarily unavailable. Please try again.'
+    }
+  }
 
-  useEffect(() => {
-    const controller = new AbortController()
-    setData(null); setError(''); setStatus(null)
-    if (!path) { setLoading(false); return }
-    setLoading(true)
-    youtubeRequest(path, { signal: controller.signal })
-      .then(setData)
-      .catch(error => {
-        if (controller.signal.aborted) return
-        setStatus(error instanceof YoutubeApiError ? error.status : null)
-        setError(errorMessage(error, 'Unable to load this section.'))
-      })
-      .finally(() => { if (!controller.signal.aborted) setLoading(false) })
-    return () => controller.abort()
-  }, [path, refresh])
-
-  return { data, error, status, loading }
+  return errorMessage(error, 'Unable to load your YouTube workspace.')
 }
 
-// ─── Main controller ───────────────────────────────────────────────────
+export function useYoutubeResource(path, refresh = 0) {
+  const requestKey = path ? `${path}:${refresh}` : null
+  const [result, setResult] = useState({
+    key: null,
+    data: null,
+    error: '',
+    status: null,
+  })
 
-export function useYouTubeIntelligence() {
-  const [initial] = useState(() => ({ channelId: readSelectedChannelId(), authResult: readAuthResult() }))
+  useEffect(() => {
+    if (!path) return
+    const controller = new AbortController()
+    youtubeRequest(path, { signal: controller.signal })
+      .then(data => {
+        setResult({ key: requestKey, data, error: '', status: null })
+      })
+      .catch(error => {
+        if (controller.signal.aborted) return
+        setResult({
+          key: requestKey,
+          data: null,
+          error: errorMessage(error, 'Unable to load this section.'),
+          status: error instanceof YoutubeApiError ? error.status : null,
+        })
+      })
+    return () => controller.abort()
+  }, [path, requestKey])
+
+  if (!requestKey) return { data: null, error: '', status: null, loading: false }
+  if (result.key !== requestKey) {
+    return { data: null, error: '', status: null, loading: true }
+  }
+  return { ...result, loading: false }
+}
+
+export function useYouTubeIntelligence({ preferredChannelId, useStoredChannel = true } = {}) {
+  const [initial] = useState(() => ({
+    channelId:
+      stringValue(preferredChannelId) || (useStoredChannel ? readSelectedChannelId() : null),
+    authResult: readAuthResult(),
+    authFailureReason: readAuthFailureReason(),
+  }))
   const [refresh, setRefresh] = useState(0)
-  const [authStatus, setAuthStatus] = useState('loading')
+  const [authStatus, setAuthStatus] = useState(
+    initial.authResult === 'failed' ? 'anonymous' : 'loading',
+  )
+  const [authPhase, setAuthPhase] = useState('session')
   const [session, setSession] = useState(emptySession)
-  const [error, setError] = useState(initial.authResult === 'failed' ? 'Google sign-in failed. Please try again.' : '')
+  const [error, setError] = useState('')
   const [busy, setBusy] = useState(false)
 
-  // Placeholder state — these will be filled once backend adds endpoints
   const [profile, setProfile] = useState(blankProfile)
   const [selection, setSelection] = useState([])
   const [schedule, setSchedule] = useState(blankSchedule)
   const [running, setRunning] = useState(false)
-  const [videos, setVideos] = useState([])
-  const [automationReady, setAutomationReady] = useState(false)
+  const automationReady = false
 
-  const selected = session.selected
-
-  useEffect(() => { clearAuthParams() }, [])
-
-  // 1) Check auth + load channels on mount (and on refresh)
   useEffect(() => {
+    if (initial.authResult === 'failed') return
     const controller = new AbortController()
 
     async function load() {
+      let phase = 'session'
       try {
-        const me = await getAuthMe()
-        // getAuthMe returns 200 with payload, or 401 which throws
+        const me = await getAuthMe({ signal: controller.signal })
         if (!extractAuthFlag(me)) {
           setSession(emptySession)
           setAuthStatus('anonymous')
           return
         }
 
-        const channelsPayload = await getAuthChannels()
+        phase = 'channels'
+        setAuthPhase('channels')
+        const channelsPayload = await getAuthChannels({ signal: controller.signal })
         const channels = extractChannels(channelsPayload)
 
         const fromServer =
@@ -178,17 +241,25 @@ export function useYouTubeIntelligence() {
           stringValue(channelsPayload?.selected_channel_id) ||
           stringValue(channelsPayload?.current_channel_id)
 
-        const chosen =
-          [initial.channelId, fromServer].find(id => id && channels.some(channel => channel.id === id)) ||
-          channels[0]?.id ||
-          null
+        let chosen = null
+        if (initial.channelId) {
+          chosen = channels.some(channel => channel.id === initial.channelId)
+            ? initial.channelId
+            : null
+        } else if (fromServer && channels.some(channel => channel.id === fromServer)) {
+          chosen = fromServer
+        }
 
         if (chosen) rememberSelectedChannelId(chosen)
+        else forgetSelectedChannelId()
 
         setSession({
           channels,
           selected: chosen,
-          csrf: stringValue(channelsPayload?.csrf) || stringValue(channelsPayload?.csrf_token) || '',
+          csrf:
+            stringValue(channelsPayload?.csrf) ||
+            stringValue(channelsPayload?.csrf_token) ||
+            '',
         })
         setAuthStatus('authenticated')
         setError('')
@@ -199,18 +270,16 @@ export function useYouTubeIntelligence() {
           setAuthStatus('anonymous')
           return
         }
-        setError(errorMessage(err, 'Unable to reach YouTube Intelligence.'))
+        setError(authenticationErrorMessage(err, phase))
         setAuthStatus('error')
       }
     }
 
     load()
     return () => controller.abort()
-  }, [initial.channelId, refresh])
+  }, [initial.authResult, initial.channelId, refresh])
 
-  // 2) Mutations — endpoints not yet on backend, so this warns + returns false
   const mutate = useCallback(async (path, body, method = 'POST') => {
-    // Special case: switching selected channel is local state only (for now)
     if (path === '/channel') {
       const nextChannel = stringValue(body?.channel)
       if (!nextChannel) return false
@@ -220,20 +289,58 @@ export function useYouTubeIntelligence() {
       return true
     }
 
-    console.warn(
-      `[YouTube] mutate(${path}) called but backend endpoint is not yet implemented. ` +
-      `Request would be: ${method} ${path}`,
-      body
-    )
-    return false
-  }, [session.channels])
+    const channelId = session.selected
+    if (!channelId) {
+      setError('Connect your YouTube channel before saving changes.')
+      return false
+    }
+
+    setBusy(true)
+    setError('')
+    try {
+      if (path === '/profile') {
+        await youtubeRequest('/business-profile/save', {
+          method: 'POST',
+          body: { channel_id: channelId, ...(body || {}) },
+        })
+      } else if (path === '/selection') {
+        const videos = Array.isArray(body?.videos) ? body.videos : []
+        await youtubeRequest('/selection-videos/save', {
+          method: 'POST',
+          body: {
+            channel_id: channelId,
+            videos: videos.map(video => ({
+              youtube_video_id: video.youtube_video_id,
+              description: video.description || '',
+            })),
+          },
+        })
+      } else {
+        console.warn(
+          `[YouTube] mutate(${path}) called but backend endpoint is not yet implemented. ` +
+            `Request would be: ${method} ${path}`,
+          body,
+        )
+        return false
+      }
+
+      return true
+    } catch (err) {
+      if (isUnauthorized(err)) {
+        setSession(emptySession)
+        setAuthStatus('anonymous')
+        setError('Your session expired. Please reconnect your YouTube channel.')
+      } else {
+        setError(errorMessage(err, 'Unable to save your changes.'))
+      }
+      return false
+    } finally {
+      setBusy(false)
+    }
+  }, [session.channels, session.selected])
 
   async function chooseChannel(channel) {
-    if (await mutate('/channel', { channel }, 'POST')) {
-      setRefresh(value => value + 1)
-      return true
-    }
-    return false
+    return mutate('/channel', { channel }, 'POST')
   }
 
   const connect = useCallback(() => {
@@ -255,24 +362,36 @@ export function useYouTubeIntelligence() {
     return true
   }, [])
 
+  const reload = useCallback(() => {
+    setError('')
+    setAuthPhase('session')
+    setAuthStatus('loading')
+    setRefresh(value => value + 1)
+  }, [])
+
   return {
     session,
     authenticated: authStatus === 'authenticated',
     authStatus,
+    authPhase,
+    authFailureReason: initial.authFailureReason,
     loading: authStatus === 'loading',
     error,
     busy,
-    profile, setProfile,
-    selection, setSelection,
-    schedule, setSchedule,
-    running, setRunning,
-    videos,
+    profile,
+    setProfile,
+    selection,
+    setSelection,
+    schedule,
+    setSchedule,
+    running,
+    setRunning,
     automationReady,
     channel: session.channels.find(channel => channel.id === session.selected) || null,
     chooseChannel,
     connect,
     logout,
     mutate,
-    reload: () => setRefresh(value => value + 1),
+    reload,
   }
 }
