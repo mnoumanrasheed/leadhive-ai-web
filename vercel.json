@@ -1,0 +1,28 @@
+{
+  "rewrites": [
+    {
+      "source": "/auth/:path*",
+      "destination": "https://8qgnw9pl-8002.inc1.devtunnels.ms/auth/:path*"
+    },
+    {
+      "source": "/api/:path*",
+      "destination": "https://8qgnw9pl-8002.inc1.devtunnels.ms/api/:path*"
+    },
+    {
+      "source": "/business-profile/:path*",
+      "destination": "https://8qgnw9pl-8002.inc1.devtunnels.ms/business-profile/:path*"
+    },
+    {
+      "source": "/selection-videos/:path*",
+      "destination": "https://8qgnw9pl-8002.inc1.devtunnels.ms/selection-videos/:path*"
+    },
+    {
+      "source": "/comments/:path*",
+      "destination": "https://8qgnw9pl-8002.inc1.devtunnels.ms/comments/:path*"
+    },
+    {
+      "source": "/ai/:path*",
+      "destination": "https://8qgnw9pl-8002.inc1.devtunnels.ms/ai/:path*"
+    }
+  ]
+}
