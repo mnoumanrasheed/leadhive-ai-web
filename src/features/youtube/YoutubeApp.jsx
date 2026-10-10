@@ -32,7 +32,7 @@ function SessionStatus({ error, onRetry }) {
       ) : (
         <>
           <span className="td-session-spinner" aria-hidden="true" />
-          <p>Loading your YouTube workspace...</p>
+          <p>Connecting to YouTube...</p>
         </>
       )}
     </main>

@@ -67,17 +67,11 @@ function OAuthSuccess({ channelId }) {
   if (controller.authStatus === 'error') {
     return <OAuthStatus error message={controller.error} retry={controller.reload} />
   }
-  return (
-    <OAuthStatus
-      message={controller.authPhase === 'channels'
-        ? 'Loading your YouTube channel…'
-        : 'Completing YouTube authentication…'}
-    />
-  )
+  return <OAuthStatus message="Connecting to YouTube..." />
 }
 
 function OAuthReturn() {
-  const { channelId } = useParams()
+  const { channelId: pathChannelId } = useParams()
   const [params] = useSearchParams()
 
   if (params.get('auth') !== 'success') {
@@ -85,6 +79,7 @@ function OAuthReturn() {
     return <Navigate to={`/test-demo?auth=failed&reason=${encodeURIComponent(reason)}#channel`} replace />
   }
 
+  const channelId = pathChannelId || params.get('channel_id') || params.get('channelId')
   return <OAuthSuccess channelId={channelId} />
 }
 

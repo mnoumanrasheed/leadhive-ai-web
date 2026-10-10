@@ -1,28 +1,96 @@
 {
-  "rewrites": [
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "routes": [
     {
-      "source": "/auth/:path*",
-      "destination": "https://8qgnw9pl-8002.inc1.devtunnels.ms/auth/:path*"
+      "src": "^/auth(?<path>/.*)?$",
+      "dest": "https://8qgnw9pl-8002.inc1.devtunnels.ms/auth$path",
+      "transforms": [
+        {
+          "type": "request.headers",
+          "op": "set",
+          "target": {
+            "key": "X-Tunnel-Skip-AntiPhishing-Page"
+          },
+          "args": "true"
+        }
+      ]
     },
     {
-      "source": "/api/:path*",
-      "destination": "https://8qgnw9pl-8002.inc1.devtunnels.ms/api/:path*"
+      "src": "^/api(?<path>/.*)?$",
+      "dest": "https://8qgnw9pl-8002.inc1.devtunnels.ms/api$path",
+      "transforms": [
+        {
+          "type": "request.headers",
+          "op": "set",
+          "target": {
+            "key": "X-Tunnel-Skip-AntiPhishing-Page"
+          },
+          "args": "true"
+        }
+      ]
     },
     {
-      "source": "/business-profile/:path*",
-      "destination": "https://8qgnw9pl-8002.inc1.devtunnels.ms/business-profile/:path*"
+      "src": "^/business-profile(?<path>/.*)?$",
+      "dest": "https://8qgnw9pl-8002.inc1.devtunnels.ms/business-profile$path",
+      "transforms": [
+        {
+          "type": "request.headers",
+          "op": "set",
+          "target": {
+            "key": "X-Tunnel-Skip-AntiPhishing-Page"
+          },
+          "args": "true"
+        }
+      ]
     },
     {
-      "source": "/selection-videos/:path*",
-      "destination": "https://8qgnw9pl-8002.inc1.devtunnels.ms/selection-videos/:path*"
+      "src": "^/selection-videos(?<path>/.*)?$",
+      "dest": "https://8qgnw9pl-8002.inc1.devtunnels.ms/selection-videos$path",
+      "transforms": [
+        {
+          "type": "request.headers",
+          "op": "set",
+          "target": {
+            "key": "X-Tunnel-Skip-AntiPhishing-Page"
+          },
+          "args": "true"
+        }
+      ]
     },
     {
-      "source": "/comments/:path*",
-      "destination": "https://8qgnw9pl-8002.inc1.devtunnels.ms/comments/:path*"
+      "src": "^/comments(?<path>/.*)?$",
+      "dest": "https://8qgnw9pl-8002.inc1.devtunnels.ms/comments$path",
+      "transforms": [
+        {
+          "type": "request.headers",
+          "op": "set",
+          "target": {
+            "key": "X-Tunnel-Skip-AntiPhishing-Page"
+          },
+          "args": "true"
+        }
+      ]
     },
     {
-      "source": "/ai/:path*",
-      "destination": "https://8qgnw9pl-8002.inc1.devtunnels.ms/ai/:path*"
+      "src": "^/ai(?<path>/.*)?$",
+      "dest": "https://8qgnw9pl-8002.inc1.devtunnels.ms/ai$path",
+      "transforms": [
+        {
+          "type": "request.headers",
+          "op": "set",
+          "target": {
+            "key": "X-Tunnel-Skip-AntiPhishing-Page"
+          },
+          "args": "true"
+        }
+      ]
+    },
+    {
+      "handle": "filesystem"
+    },
+    {
+      "src": "^/.*$",
+      "dest": "/index.html"
     }
   ]
 }
