@@ -25,12 +25,14 @@ export default defineConfig(({ mode }) => {
 
     server: {
       proxy: {
-        '/api': backendProxy,
+       '/api': backendProxy,
         '/auth': backendProxy,
         '/business-profile': backendProxy,
         '/selection-videos': backendProxy,
         '/comments': backendProxy,
         '/ai': backendProxy,
+        '/analytics': backendProxy,
+        '/demo':backendProxy,
       },
     },
   }
