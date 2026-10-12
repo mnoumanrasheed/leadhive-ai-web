@@ -3,6 +3,9 @@ import { AnimatePresence, motion, useReducedMotion } from 'motion/react'
 import { ArrowUpRight, Menu, X } from 'lucide-react'
 import { Link, useLocation } from 'react-router'
 
+// Test Demo opens step 1 of the flow, where visitors can try the interactive demo or connect their channel
+const DEMO_PATH = '/flow?step=1'
+
 const links = [
   ['Product', 'product'],
   ['How it works', 'workflow'],
@@ -41,7 +44,7 @@ export function Navbar() {
           {links.map(([label, id]) => <a key={id} href={sectionHref(id)}>{label}</a>)}
         </div>
         <div className="nav-actions">
-          <Link to="/test-demo" className="button button-small nav-cta">Test Demo <ArrowUpRight /></Link>
+          <Link to={DEMO_PATH} className="button button-small nav-cta">Test Demo <ArrowUpRight /></Link>
           <button className="menu-button" onClick={() => setMenuOpen((open) => !open)} aria-label={menuOpen ? 'Close navigation' : 'Open navigation'} aria-expanded={menuOpen}>
             {menuOpen ? <X /> : <Menu />}
           </button>
@@ -51,7 +54,7 @@ export function Navbar() {
         {menuOpen && (
           <motion.div className="mobile-menu" id="mobile-navigation" initial={reducedMotion ? false : { opacity: 0, y: -12 }} animate={{ opacity: 1, y: 0 }} exit={reducedMotion ? undefined : { opacity: 0, y: -8 }} transition={{ duration: .25, ease: [0.16, 1, .3, 1] }}>
             {links.map(([label, id]) => <a key={id} href={sectionHref(id)} onClick={() => setMenuOpen(false)}>{label}<ArrowUpRight /></a>)}
-            <Link className="button" to="/test-demo" onClick={() => setMenuOpen(false)}>Test Demo <ArrowUpRight /></Link>
+            <Link className="button" to={DEMO_PATH} onClick={() => setMenuOpen(false)}>Test Demo <ArrowUpRight /></Link>
           </motion.div>
         )}
       </AnimatePresence>
