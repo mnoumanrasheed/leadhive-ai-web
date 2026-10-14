@@ -5,6 +5,7 @@ import {
   AlertCircle,
   ArrowUpRight,
   CheckCircle2,
+  CornerDownRight,
   Info,
   MessageSquare,
   ThumbsUp,
@@ -31,6 +32,8 @@ function toComment(raw) {
     likes: Number(inner.likes ?? inner.likeCount ?? inner.like_count ?? 0) || 0,
     isReplied: raw.is_replied === true,
     aiReply: raw.ai_reply || '',
+    // Replies to this comment (same shape as a comment)
+    replies: Array.isArray(raw.replies) ? raw.replies.map(toComment).filter(Boolean) : [],
   }
 }
 
@@ -60,6 +63,62 @@ function resultSummary(result) {
   return failed ? `${base} ${failed} failed.` : base
 }
 
+// All replies under one comment, indented with a left border
+function ReplyThread({ replies }) {
+  if (!replies.length) return null
+  return (
+    <div className="ml-12 mt-3 space-y-3 border-l-2 border-gray-200 pl-4">
+      <span className="inline-flex items-center gap-1 text-xs font-medium text-gray-500">
+        <CornerDownRight size={13} />
+        {replies.length} {replies.length === 1 ? 'reply' : 'replies'}
+      </span>
+
+      {replies.map(reply => (
+        <div
+          key={reply.id}
+          className={
+            'rounded-lg border p-3 ' +
+            (reply.isReplied ? 'border-green-200 bg-green-50/40' : 'border-gray-200 bg-gray-50')
+          }
+        >
+          <header className="flex items-center justify-between gap-2">
+            <div>
+              <strong className="text-sm text-gray-900">{reply.author}</strong>
+              {reply.published && (
+                <time className="ml-2 text-xs text-gray-400">{formatTime(reply.published)}</time>
+              )}
+            </div>
+            {reply.isReplied && (
+              <span className="rounded-full bg-green-100 px-2 py-0.5 text-xs font-medium text-green-700">
+                Reply posted
+              </span>
+            )}
+          </header>
+
+          <p className="mt-1 break-words text-sm text-gray-700">{reply.text}</p>
+
+          {reply.likes > 0 && (
+            <span className="mt-2 inline-flex items-center gap-1 text-xs text-gray-500">
+              <ThumbsUp size={13} /> {reply.likes}
+            </span>
+          )}
+
+          {reply.isReplied && (
+            <aside aria-label="Final posted reply" className="mt-2 rounded-lg bg-white p-3 text-sm">
+              <span className="inline-flex items-center gap-1 text-xs font-medium text-green-700">
+                <CheckCircle2 size={15} /> Final posted reply
+              </span>
+              <p className="mt-1 break-words text-gray-700">
+                {reply.aiReply || 'Reply posted on YouTube.'}
+              </p>
+            </aside>
+          )}
+        </div>
+      ))}
+    </div>
+  )
+}
+
 export function ReplySection({ channel, video }) {
   const channelId = channel?.id
   const videoId = video?.id
@@ -74,6 +133,10 @@ export function ReplySection({ channel, video }) {
   )
 
   const comments = useMemo(() => toComments(data), [data])
+  const replyCount = useMemo(
+    () => comments.reduce((total, comment) => total + comment.replies.length, 0),
+    [comments],
+  )
   const unreplied = comments.filter(comment => !comment.isReplied).length
   const allReplied = comments.length > 0 && unreplied === 0
   const canPost = !error && unreplied > 0
@@ -191,6 +254,7 @@ export function ReplySection({ channel, video }) {
           <div className="flex items-center gap-3">
             <span className="rounded-full bg-blue-100 px-3 py-1 text-sm font-medium text-blue-700">
               {comments.length} {comments.length === 1 ? 'comment' : 'comments'}
+              {replyCount > 0 && ` · ${replyCount} ${replyCount === 1 ? 'reply' : 'replies'}`}
             </span>
             <button
               type="button"
@@ -305,6 +369,9 @@ export function ReplySection({ channel, video }) {
                   </p>
                 </aside>
               )}
+
+              {/* All replies under this comment */}
+              <ReplyThread replies={comment.replies} />
             </article>
           ))}
         </div>
