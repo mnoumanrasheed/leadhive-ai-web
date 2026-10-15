@@ -3,7 +3,7 @@
   "routes": [
     {
       "src": "^/auth(?<path>/.*)?$",
-      "dest": "https://8qgnw9pl-8002.inc1.devtunnels.ms/auth$path",
+      "dest": "https://winter-hangover-fog.ngrok-free.dev/auth$path",
       "transforms": [
         {
           "type": "request.headers",
@@ -17,7 +17,7 @@
     },
     {
       "src": "^/api(?<path>/.*)?$",
-      "dest": "https://8qgnw9pl-8002.inc1.devtunnels.ms/api$path",
+      "dest": "https://winter-hangover-fog.ngrok-free.dev/api$path",
       "transforms": [
         {
           "type": "request.headers",
@@ -31,7 +31,7 @@
     },
     {
       "src": "^/business-profile(?<path>/.*)?$",
-      "dest": "https://8qgnw9pl-8002.inc1.devtunnels.ms/business-profile$path",
+      "dest": "https://winter-hangover-fog.ngrok-free.dev/business-profile$path",
       "transforms": [
         {
           "type": "request.headers",
@@ -45,7 +45,7 @@
     },
     {
       "src": "^/selection-videos(?<path>/.*)?$",
-      "dest": "https://8qgnw9pl-8002.inc1.devtunnels.ms/selection-videos$path",
+      "dest": "https://winter-hangover-fog.ngrok-free.dev/selection-videos$path",
       "transforms": [
         {
           "type": "request.headers",
@@ -59,7 +59,7 @@
     },
     {
       "src": "^/comments(?<path>/.*)?$",
-      "dest": "https://8qgnw9pl-8002.inc1.devtunnels.ms/comments$path",
+      "dest": "https://winter-hangover-fog.ngrok-free.dev/comments$path",
       "transforms": [
         {
           "type": "request.headers",
@@ -73,7 +73,35 @@
     },
     {
       "src": "^/ai(?<path>/.*)?$",
-      "dest": "https://8qgnw9pl-8002.inc1.devtunnels.ms/ai$path",
+      "dest": "https://winter-hangover-fog.ngrok-free.dev/ai$path",
+      "transforms": [
+        {
+          "type": "request.headers",
+          "op": "set",
+          "target": {
+            "key": "X-Tunnel-Skip-AntiPhishing-Page"
+          },
+          "args": "true"
+        }
+      ]
+    },
+    {
+      "src": "^/analytics(?<path>/.*)?$",
+      "dest": "https://winter-hangover-fog.ngrok-free.dev/analytics$path",
+      "transforms": [
+        {
+          "type": "request.headers",
+          "op": "set",
+          "target": {
+            "key": "X-Tunnel-Skip-AntiPhishing-Page"
+          },
+          "args": "true"
+        }
+      ]
+    },
+    {
+      "src": "^/demo(?<path>/.*)?$",
+      "dest": "https://winter-hangover-fog.ngrok-free.dev/demo$path",
       "transforms": [
         {
           "type": "request.headers",
