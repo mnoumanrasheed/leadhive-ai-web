@@ -16,58 +16,36 @@ import { useYoutubeResource } from '../hooks'
 import { FlowLoader } from './FlowLoader'
 
 const enc = encodeURIComponent
-const COMMENTS_POLL_INTERVAL_MS = 10_000
 
 // The comments response shape isn't in the OpenAPI spec, so accept the likely variations
 function toComment(raw) {
   if (!raw || typeof raw !== 'object') return null
   const inner = raw.snippet?.topLevelComment?.snippet || raw.snippet || raw
-  const text =
-    inner.text ||
-    inner.textDisplay ||
-    inner.textOriginal ||
-    inner.comment_text ||
-    inner.commentText ||
-    (typeof inner.comment === 'string' ? inner.comment : '') ||
-    ''
-  const id =
-    raw.youtube_comment_id ||
-    raw.id ||
-    raw.comment_id ||
-    inner.id ||
-    text.slice(0, 20)
+  const text = inner.text || inner.textDisplay || inner.textOriginal || inner.comment_text || inner.comment || ''
+  const id = raw.youtube_comment_id || raw.id || raw.comment_id || inner.id || text.slice(0, 20)
 
   return {
     id,
-    author:
-      inner.author ||
-      inner.authorDisplayName ||
-      inner.author_display_name ||
-      inner.author_name ||
-      'Unknown',
+    author: inner.author || inner.authorDisplayName || inner.author_name || 'Unknown',
     text,
-    published: inner.published_at || inner.publishedAt || inner.created_at || inner.published || '',
+    published: inner.published_at || inner.publishedAt || inner.created_at || '',
     likes: Number(inner.likes ?? inner.likeCount ?? inner.like_count ?? 0) || 0,
-    isReplied: raw.is_replied === true || raw.isReplied === true,
-    aiReply: raw.ai_reply || raw.aiReply || '',
+    isReplied: raw.is_replied === true,
+    aiReply: raw.ai_reply || '',
     // Replies to this comment (same shape as a comment)
     replies: Array.isArray(raw.replies) ? raw.replies.map(toComment).filter(Boolean) : [],
   }
 }
 
-// Accept a plain list or a list inside common API response envelopes
+// Accepts a plain list, or a list under "comments" / "items"
 function toComments(payload) {
-  const candidates = [
-    payload,
-    payload?.comments,
-    payload?.items,
-    payload?.data,
-    payload?.data?.comments,
-    payload?.data?.items,
-    payload?.results,
-    payload?.youtube_comments,
-  ]
-  const list = candidates.find(Array.isArray) || []
+  const list = Array.isArray(payload)
+    ? payload
+    : Array.isArray(payload?.comments)
+      ? payload.comments
+      : Array.isArray(payload?.items)
+        ? payload.items
+        : []
   return list.map(toComment).filter(Boolean)
 }
 
@@ -152,7 +130,6 @@ export function ReplySection({ channel, video }) {
   const { data, error, loading } = useYoutubeResource(
     channelId && videoId ? `/comments/${enc(channelId)}/${enc(videoId)}` : null,
     refresh,
-    COMMENTS_POLL_INTERVAL_MS,
   )
 
   const comments = useMemo(() => toComments(data), [data])
@@ -270,9 +247,7 @@ export function ReplySection({ channel, video }) {
             </span>
             <div>
               <h2 className="text-lg font-semibold text-gray-900">Comments</h2>
-              <p className="text-sm text-gray-500">
-                Comments pulled from YouTube. Updates automatically every 10 seconds.
-              </p>
+              <p className="text-sm text-gray-500">Comments pulled directly from YouTube for this video.</p>
             </div>
           </div>
 

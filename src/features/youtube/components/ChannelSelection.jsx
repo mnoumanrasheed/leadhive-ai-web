@@ -8,11 +8,6 @@ import { FlowLoader } from './FlowLoader'
 
 // Full-page redirect to Google (the Vite proxy forwards /auth to the backend)
 const CONNECT_URL = '/auth/google/login'
-const AUTH_RETURN_KEY = 'leadhive.youtube.auth-return'
-
-function markAuthReturn() {
-  sessionStorage.setItem(AUTH_RETURN_KEY, 'pending')
-}
 
 // Messages for the ?auth=failed&reason=... values the backend callback can send
 const FAILURE_MESSAGES = {
@@ -80,7 +75,6 @@ export function ChannelSelection({ channel, onSelectChannel }) {
         {hasChannels && (
           <a
             href={CONNECT_URL}
-            onClick={markAuthReturn}
             className="inline-flex items-center gap-2 rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
           >
             <Link2 size={15} /> Connect another account
@@ -116,7 +110,6 @@ export function ChannelSelection({ channel, onSelectChannel }) {
           {!hasChannels && (
             <a
               href={CONNECT_URL}
-              onClick={markAuthReturn}
               className="mt-5 inline-flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700"
             >
               <Link2 size={15} /> Connect YouTube
