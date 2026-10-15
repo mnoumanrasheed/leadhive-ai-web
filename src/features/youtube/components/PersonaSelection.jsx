@@ -53,6 +53,7 @@ export function PersonaSelection({ channel, profile, onProfileSaved }) {
   useEffect(() => {
     if (!data) return
     const loaded = toForm(data)
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setForm(loaded)
     if (loaded.business_name) onProfileSaved(loaded)
   }, [data, onProfileSaved])

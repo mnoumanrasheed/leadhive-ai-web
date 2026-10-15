@@ -53,6 +53,7 @@ export function VideoSelection({ channel, video, onVideoSaved }) {
     if (video) return // already saved in this session
     const saved = videos.find(item => item.selected)
     if (!saved) return
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setSelectedId(saved.id)
     onVideoSaved({ id: saved.id, title: saved.title, description: saved.description })
   }, [videos, video, onVideoSaved])

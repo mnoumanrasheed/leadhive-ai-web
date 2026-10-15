@@ -12,7 +12,7 @@ export function Footer() {
       <Reveal className="container footer-grid">
         <div className="footer-brand">
           <Link to="/" aria-label="LeadHive AI home">
-            <img src="/leadhive-logo.png" alt="LeadHive AI" />
+            <img src="/leadhive-logo-light.png" alt="LeadHive AI" />
           </Link>
           <p>Turning digital conversations into clear, qualified sales opportunities.</p>
           <small>Built by <a href="https://m3hive.com/" target="_blank" rel="noreferrer">M3Hive</a></small>

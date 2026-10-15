@@ -30,7 +30,7 @@ export default function NotFound() {
             padding: '10px 18px',
             borderRadius: 10,
             background: 'var(--accent)',
-            color: '#fff',
+            color: 'var(--accent-ink, #08232B)',
             fontSize: 14,
             fontWeight: 700,
           }}

@@ -1,5 +1,4 @@
 import { useEffect, useRef, useState } from 'react'
-import { motion, useInView, useReducedMotion } from 'motion/react'
 import { AlertCircle, ArrowRight, CheckCircle2, Mail } from 'lucide-react'
 import { Reveal } from '../../../shared/ui/Reveal'
 
@@ -50,11 +49,8 @@ export function CTA() {
   const [status, setStatus] = useState('idle')
   const [feedback, setFeedback] = useState('')
   const [captchaToken, setCaptchaToken] = useState('')
-  const ref = useRef(null)
   const recaptchaRef = useRef(null)
   const recaptchaWidgetId = useRef(null)
-  const inView = useInView(ref, { amount: .2 })
-  const reducedMotion = useReducedMotion()
 
   useEffect(() => {
     let cancelled = false
@@ -121,23 +117,8 @@ export function CTA() {
   }
 
   return (
-    <section className="cta-section" id="contact" ref={ref}>
+    <section className="cta-section" id="contact">
       <img className="cta-watermark" src="/favicon.png" alt="" aria-hidden="true" />
-      <svg className="cta-intelligence-path" viewBox="0 0 360 260" aria-hidden="true">
-        <path d="M24 188 C96 144 111 80 180 112 S264 176 336 60" />
-        {[24, 114, 180, 270, 336].map((cx, index) => (
-          <circle cx={cx} cy={[188, 110, 112, 146, 60][index]} r="4" key={cx} />
-        ))}
-        <motion.circle
-          cx="24"
-          cy="188"
-          r="5"
-          animate={inView && !reducedMotion
-            ? { cx: [24, 114, 180, 270, 336], cy: [188, 110, 112, 146, 60], opacity: [0, 1, 1, 1, 0] }
-            : { opacity: 0 }}
-          transition={{ duration: 7, repeat: Infinity, ease: 'easeInOut' }}
-        />
-      </svg>
       <div className="container cta-layout">
         <div className="cta-left-content">
           <Reveal><p className="cta-kicker">Ready when your team is</p></Reveal>

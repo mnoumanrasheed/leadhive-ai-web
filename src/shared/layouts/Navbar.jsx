@@ -38,7 +38,7 @@ export function Navbar() {
     <header className={`navbar-wrap${scrolled ? ' is-scrolled' : ''}`}>
       <nav className="navbar container" aria-label="Main navigation">
         <Link to="/" className="brand" aria-label="LeadHive AI home">
-          <img src="/leadhive-logo.png" alt="LeadHive AI" />
+          <img src="/leadhive-logo-light.png" alt="LeadHive AI" />
         </Link>
         <div className="desktop-nav">
           {links.map(([label, id]) => <a key={id} href={sectionHref(id)}>{label}</a>)}

@@ -1,7 +1,6 @@
 // Controls the 5-step LeadHive flow: Channel -> Persona -> Video -> Reply -> Stats.
 // The current step lives in the URL (/flow?step=2) so refresh and the browser Back button work.
-// The shared selections are saved in localStorage so a refresh doesn't lose them.
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { Link, useSearchParams } from "react-router";
 import { ArrowUpRight, Play } from "lucide-react";
 import { ChannelSelection } from "../components/ChannelSelection";

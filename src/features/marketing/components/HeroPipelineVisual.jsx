@@ -113,8 +113,8 @@ export function HeroPipelineVisual({ active }) {
         className="intelligence-output"
         initial={false}
         animate={active
-          ? { opacity: [.54, .54, 1, 1, .72], y: [4, 4, 0, 0, 0], borderColor: ['rgba(127,235,241,.24)', 'rgba(127,235,241,.24)', 'rgba(103,232,249,.8)', 'rgba(127,235,241,.3)', 'rgba(127,235,241,.24)'] }
-          : { opacity: 1, y: 0, borderColor: 'rgba(103,232,249,.48)' }}
+          ? { opacity: [.85, .85, 1, 1, .9], y: [4, 4, 0, 0, 0], borderColor: ['#E5E7EB', '#E5E7EB', '#2BC1DF', '#E5E7EB', '#E5E7EB'] }
+          : { opacity: 1, y: 0, borderColor: '#E5E7EB' }}
         transition={{ ...cycle, delay: 4.1, times: [0, .08, .18, .32, 1] }}
       >
         <span><Target size={17} /></span>

@@ -72,8 +72,11 @@ export function Channels() {
     <section className="channels-section section-pad" id="channels" ref={ref}>
       <div className="container channels-network-layout">
         <Reveal className="channels-copy">
-          <p className="eyebrow channels-eyebrow"><Sparkles size={13} /> Unified channels</p>
-          <h2>Built for where your customers <span className="channels-gradient-text">already talk to you.</span></h2>
+          <div className="channels-section-pill">
+            <Sparkles size={13} />
+            <span>Unified Channels</span>
+          </div>
+          <h2>Built for where your customers already talk to you.</h2>
           <p>Customers don&apos;t always fill out forms. They send messages. LeadHive turns those conversations into structured opportunities.</p>
           <div className="channels-proof">
             <span><Check /></span>

@@ -48,7 +48,7 @@ export function Preloader() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: .5, ease: [0.16, 1, .3, 1] }}
           >
-            <img className="preloader-symbol" src="/leadhive-logo.png" alt="" aria-hidden="true" />
+            <img className="preloader-symbol" src="/leadhive-logo-light.png" alt="" aria-hidden="true" />
             <p className="preloader-status">Initializing Lead Intelligence</p>
             <div
               className="preloader-progress"
