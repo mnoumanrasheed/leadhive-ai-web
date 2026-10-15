@@ -1,0 +1,14 @@
+
+@import url('https://fonts.googleapis.com/css2?family=Commissioner:wght@100..900&display=swap');
+
+/* Flip-down: the word hangs from its top edge and swings into view */
+@keyframes flip-down {
+  0%   { opacity: 0; transform: perspective(600px) rotateX(-90deg); }
+  100% { opacity: 1; transform: perspective(600px) rotateX(0deg); }
+}
+
+.flip-down {
+  display: inline-block;           /* transforms need inline-block to work on a span */
+  transform-origin: top center;    /* pivot from the top edge */
+  animation: flip-down 1s cubic-bezier(0.22, 1, 0.36, 1) both; /* slow ease-out = smooth */
+}

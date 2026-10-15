@@ -3,6 +3,8 @@ import { BrowserRouter, Routes, Route, Navigate } from "react-router";
 import MarketingApp from "@/features/marketing/MarketingApp";
 import { FlowWidget } from "./features/youtube/screens/FlowWidget";
 import { LiveDemo } from "./features/youtube/components/LiveDemo";
+import { VisaApp } from "./features/visabot/VisaApp";
+import { RegisterClient } from "./features/visabot/components/RegisterClient";
 
 const LegalPage = lazy(() =>
   import("@/features/legal/LegalPage").then((m) => ({ default: m.LegalPage })),
@@ -22,6 +24,8 @@ export default function App() {
           <Route path="/privacy" element={<LegalPage type="privacy" />} />
           <Route path="/terms" element={<LegalPage type="terms" />} />
           <Route path="*" element={<NotFound />} />
+          <Route path="/visa" element={<VisaApp/>}/>
+          <Route path="/visa/register" element={<RegisterClient/>}/>
         </Routes>
       </Suspense>
     </BrowserRouter>
