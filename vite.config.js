@@ -33,6 +33,7 @@ export default defineConfig(({ mode }) => {
         '/ai': backendProxy,
         '/analytics': backendProxy,
         '/demo':backendProxy,
+        '/profile':backendProxy,
       },
     },
   }

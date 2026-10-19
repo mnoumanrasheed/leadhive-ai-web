@@ -22,7 +22,7 @@ export const VisaApp = () => {
   useEffect(() => {
     const timer = setInterval(() => {
       setIndex((prev) => (prev + 1) % platforms.length);
-    }, 50000);
+    }, 2000);
 
     return () => clearInterval(timer);
   }, []);

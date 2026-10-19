@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { MessageCircle } from "lucide-react";
+import { createProfile } from "../api";
 
 const platforms = [
   {
@@ -21,6 +22,7 @@ const platforms = [
 ];
 
 export const RegisterClient = () => {
+  // form state: keys match what the backend aliases expect (firstName, company, agree, ...)
   const [form, setForm] = useState({
     firstName: "",
     lastName: "",
@@ -29,7 +31,10 @@ export const RegisterClient = () => {
     agree: false,
     platform: "",
   });
+  // true while the POST is in flight, blocks double submits
+  const [submitting, setSubmitting] = useState(false);
 
+  // generic input handler for text fields and the checkbox
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
     setForm((prev) => ({
@@ -38,6 +43,7 @@ export const RegisterClient = () => {
     }));
   };
 
+  // platform buttons set the platform field directly
   const handlePlatformSelect = (platform) => {
     setForm((prev) => ({
       ...prev,
@@ -45,7 +51,8 @@ export const RegisterClient = () => {
     }));
   };
 
-  const handleSubmit = (e) => {
+  // flow: validate -> save profile in backend -> redirect to the platform's OAuth route
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
     if (!form.platform) {
@@ -64,8 +71,19 @@ export const RegisterClient = () => {
       WhatsApp: "/auth/whatsapp",
     };
 
-    console.log("Registration details:", form);
-    window.location.href = authorizationRoutes[form.platform];
+    setSubmitting(true);
+    try {
+      // POST /profile, throws if the backend returns 422 or any other error
+      const saved = await createProfile(form);
+      console.log("Profile saved:", saved);
+
+      // only redirect once the profile is stored
+      window.location.href = authorizationRoutes[form.platform];
+    } catch (err) {
+      console.error("Registration failed:", err);
+      alert("Could not save your details. Please try again.");
+      setSubmitting(false); // allow retry (on success the page navigates away)
+    }
   };
 
   const inputClass =
@@ -201,10 +219,14 @@ export const RegisterClient = () => {
 
             <button
               type="submit"
-              disabled={!form.platform}
+              disabled={!form.platform || submitting}
               className="w-full rounded-lg bg-blue-600 px-6 py-3 font-semibold text-white transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-50"
             >
-              {form.platform ? `Connect ${form.platform} Account` : "Select a Platform"}
+              {submitting
+                ? "Saving..."
+                : form.platform
+                ? `Connect ${form.platform} Account`
+                : "Select a Platform"}
             </button>
           </form>
         </div>
