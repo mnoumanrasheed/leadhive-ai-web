@@ -114,13 +114,18 @@ export function ChannelSelection({ channel, onSelectChannel }) {
 
           {/* Connect button only until at least one channel is connected */}
           {!hasChannels && (
-            <a
-              href={CONNECT_URL}
-              onClick={markAuthReturn}
-              className="mt-5 inline-flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700"
-            >
-              <Link2 size={15} /> Connect YouTube
-            </a>
+            <div className="mt-5">
+              <a
+                href={CONNECT_URL}
+                onClick={markAuthReturn}
+                className="inline-flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700"
+              >
+                <Link2 size={15} /> Connect YouTube
+              </a>
+              <p className="mt-3 text-xs text-gray-500">
+                By connecting, you acknowledge our <a className="font-medium text-blue-700 hover:underline" href="/privacy">Privacy Policy</a>.
+              </p>
+            </div>
           )}
 
           <ol className="mt-6 space-y-4">

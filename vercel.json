@@ -114,6 +114,14 @@
       ]
     },
     {
+      "src": "^/privacy$",
+      "dest": "/privacy/index.html"
+    },
+    {
+      "src": "^/terms$",
+      "dest": "/terms/index.html"
+    },
+    {
       "handle": "filesystem"
     },
     {
