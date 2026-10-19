@@ -9,8 +9,8 @@ const terms = [["Using this website", "You may use this website for lawful busin
 export function LegalPage({ type }) {
   const privacy = type === "privacy";
   useEffect(() => {
-    if (privacy) window.location.replace("/privacy/");
-    else window.location.replace("/terms/");
+    if (privacy) window.location.replace("/privacy/index.html");
+    else window.location.replace("/terms/index.html");
   }, [privacy]);
   if (privacy || type === "terms") return null;
   return <div className="site-shell legal-shell"><Navbar /><main className="legal-page"><header className="legal-hero"><div className="container"><Link className="legal-back" to="/"><ArrowLeft /> Back to LeadHive AI</Link><p className="eyebrow light">Legal</p><h1>Terms of Use</h1><p>The terms that apply when using the LeadHive AI website.</p><small>Last updated: 26 August 2026</small></div></header><div className="container legal-content"><aside>LeadHive AI<br />Company information</aside><article>{terms.map(([heading, copy]) => <section key={heading}><h2>{heading}</h2><p>{copy}</p></section>)}</article></div></main><Footer /></div>;
