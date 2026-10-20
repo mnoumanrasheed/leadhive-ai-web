@@ -1,35 +1,34 @@
 import { Reveal } from '@/shared/ui/Reveal'
-import { motion } from 'motion/react'
-import { useViewportCycle } from '@/shared/hooks/useViewportCycle'
+import { ArrowUpRight } from 'lucide-react'
 
 const trustSignals = ['AI Engineering', 'Customer Experience', 'Sales Automation', 'Enterprise Delivery']
 
 export function TrustSection() {
-  const { ref, inView, reducedMotion, step } = useViewportCycle({ steps: trustSignals.length, interval: 1500, amount: 0.4 })
-
   return (
-    <section className="trust-section" id="trust" aria-label="LeadHive credibility" ref={ref}>
+    <section className="trust-section" id="trust" aria-label="LeadHive credibility">
       <Reveal className="container trust-layout">
-        <div>
-          <span>Built by</span>
-          <strong><a href="https://m3hive.com/" target="_blank" rel="noreferrer">M3Hive</a></strong>
+        <div className="trust-partner">
+          <span className="trust-label">Technology partner</span>
+          <strong>
+            <a href="https://m3hive.com/" target="_blank" rel="noreferrer">
+              M3Hive <ArrowUpRight aria-hidden="true" />
+            </a>
+          </strong>
+          <small>Product engineering for intelligent, customer-facing systems.</small>
         </div>
-        <p>
-          {trustSignals.map((signal, index) => (
-            <span className={step === index ? 'is-active' : ''} key={signal}>
-              {signal}
-              {index < trustSignals.length - 1 && <i />}
-            </span>
-          ))}
-        </p>
-        <small>Built for sales teams managing high-volume digital conversations.</small>
-        <motion.b
-          className="trust-scan"
-          animate={inView && !reducedMotion
-            ? { scaleX: [0, 1], opacity: [0, 0.55, 0] }
-            : { scaleX: 0, opacity: 0 }}
-          transition={{ duration: 5.5, repeat: inView && !reducedMotion ? Infinity : 0, ease: 'easeInOut' }}
-        />
+        <div className="trust-capabilities">
+          <span className="trust-label">Core capabilities</span>
+          <div>
+            {trustSignals.map(signal => (
+              <span key={signal}><i aria-hidden="true" />{signal}</span>
+            ))}
+          </div>
+        </div>
+        <div className="trust-outcome">
+          <span className="trust-label">Designed for scale</span>
+          <strong>From conversation to qualified opportunity.</strong>
+          <small>Built for sales teams managing high-volume digital conversations.</small>
+        </div>
       </Reveal>
     </section>
   )

@@ -4,7 +4,6 @@ import { useState } from 'react'
 import { useSearchParams } from 'react-router'
 import { ArrowRight, Check, Link2 } from 'lucide-react'
 import { useYoutubeResource } from '../hooks'
-import { FlowLoader } from './FlowLoader'
 
 // Full-page redirect to Google (the Vite proxy forwards /auth to the backend)
 const CONNECT_URL = '/auth/google/login'
@@ -61,10 +60,6 @@ export function ChannelSelection({ channel, onSelectChannel }) {
   const channels = Array.isArray(data) ? data.map(toChannel) : []
   const hasChannels = channels.length > 0
 
-  // Shown right after Google login (and on every refetch) until /auth/channels answers,
-  // so the Connect button never flashes before the real state is known
-  if (loading) return <FlowLoader message="Loading your YouTube workspace..." />
-
   return (
     <section className="space-y-6">
       {/* Heading + connect-another link */}
@@ -77,15 +72,17 @@ export function ChannelSelection({ channel, onSelectChannel }) {
             to verified channel data.
           </p>
         </div>
-        {hasChannels && (
-          <a
-            href={CONNECT_URL}
-            onClick={markAuthReturn}
-            className="inline-flex items-center gap-2 rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
-          >
-            <Link2 size={15} /> Connect another account
-          </a>
-        )}
+        <div className="flex flex-wrap items-center gap-2">
+          {hasChannels && (
+            <a
+              href={CONNECT_URL}
+              onClick={markAuthReturn}
+              className="inline-flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-semibold text-slate-700 shadow-sm transition hover:border-[#2cc1df]/60 hover:bg-[#f2fcfe]"
+            >
+              <Link2 size={15} /> Connect another account
+            </a>
+          )}
+        </div>
       </div>
 
       {connectionFailed && (
@@ -113,12 +110,12 @@ export function ChannelSelection({ channel, onSelectChannel }) {
           </p>
 
           {/* Connect button only until at least one channel is connected */}
-          {!hasChannels && (
+          {!loading && !hasChannels && (
             <div className="mt-5">
               <a
                 href={CONNECT_URL}
                 onClick={markAuthReturn}
-                className="inline-flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700"
+                className="lh-primary-action inline-flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-medium"
               >
                 <Link2 size={15} /> Connect YouTube
               </a>
@@ -147,12 +144,22 @@ export function ChannelSelection({ channel, onSelectChannel }) {
         <div className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
           <h2 className="text-lg font-semibold text-gray-900">Connected channels</h2>
           <p className="text-sm text-gray-500">
-            {hasChannels
+            {loading
+              ? 'Checking your YouTube connection...'
+              : hasChannels
               ? `${channels.length} ${channels.length === 1 ? 'channel' : 'channels'} available`
               : 'Connect a channel to begin'}
           </p>
 
           <div className="mt-4 space-y-3">
+            {loading && (
+              <div role="status" className="rounded-xl border border-slate-200 bg-slate-50 px-4 py-5">
+                <div className="h-2 w-28 animate-pulse rounded bg-slate-200" />
+                <div className="mt-3 h-2 w-44 animate-pulse rounded bg-slate-200" />
+                <span className="sr-only">Loading your YouTube workspace...</span>
+              </div>
+            )}
+
             {/* Real error with a retry (reloads via the loader above) */}
             {hardError && (
               <div role="alert" className="rounded-lg border border-red-200 bg-red-50 p-4 text-sm text-red-700">
@@ -168,7 +175,7 @@ export function ChannelSelection({ channel, onSelectChannel }) {
             )}
 
             {/* Not signed in, or signed in but the account has no channel */}
-            {!hasChannels && !hardError && (
+            {!loading && !hasChannels && !hardError && (
               <p className="text-sm text-gray-500">No channel connected yet.</p>
             )}
 
@@ -186,48 +193,82 @@ export function ChannelSelection({ channel, onSelectChannel }) {
                 <article
                   key={item.id}
                   className={
-                    'flex items-center gap-4 rounded-xl border-2 p-4 ' +
-                    (selected ? 'border-blue-500 bg-blue-50/40' : 'border-gray-200')
+                    'rounded-2xl border-2 p-4 shadow-sm transition ' +
+                    (selected ? 'border-[#2cc1df] bg-[#f4fcfd]' : 'border-gray-200 bg-white hover:border-[#b7eaf3]')
                   }
                 >
-                  {/* No thumbnail from the backend yet, so show the first letter */}
-                  <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-gray-100 font-semibold text-gray-600">
-                    {item.name.charAt(0).toUpperCase()}
-                  </div>
+                  <div className="flex flex-wrap items-center gap-4">
+                    {/* No thumbnail from the backend yet, so show the first letter */}
+                    <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-[#dff7fb] font-semibold text-[#168ca1]">
+                      {item.name.charAt(0).toUpperCase()}
+                    </div>
 
-                  <div className="min-w-0 flex-1">
-                    <span
-                      className={
-                        'inline-block rounded-full px-2 py-0.5 text-xs font-medium ' +
-                        (selected ? 'bg-blue-100 text-blue-700' : 'bg-green-100 text-green-700')
-                      }
+                    <div className="min-w-0 flex-1">
+                      <span
+                        className={
+                          'inline-block rounded-full px-2.5 py-1 text-xs font-semibold ' +
+                          (selected ? 'bg-[#dff7fb] text-[#168ca1]' : 'bg-green-100 text-green-700')
+                        }
+                      >
+                        {selected ? 'Selected channel' : 'Connected'}
+                      </span>
+                      <h3 className="mt-1 truncate font-semibold text-gray-900">{item.name}</h3>
+                      <p className="text-sm text-gray-500">{stats || 'YouTube channel'}</p>
+                    </div>
+
+                    {selected && (
+                      <span aria-label="Selected" className="text-[#168ca1]">
+                        <Check size={18} />
+                      </span>
+                    )}
+
+                    <button
+                      type="button"
+                      disabled={selected}
+                      onClick={() => onSelectChannel(item)}
+                      className="inline-flex items-center gap-1 rounded-xl border border-gray-300 bg-white px-3 py-2 text-sm font-semibold text-gray-700 transition hover:bg-gray-50 disabled:opacity-50"
                     >
-                      {selected ? 'Selected channel' : 'Connected'}
-                    </span>
-                    <h3 className="mt-1 truncate font-semibold text-gray-900">{item.name}</h3>
-                    <p className="text-sm text-gray-500">{stats || 'YouTube channel'}</p>
+                      Select <ArrowRight size={15} />
+                    </button>
                   </div>
 
-                  {selected && (
-                    <span aria-label="Selected" className="text-blue-600">
-                      <Check size={18} />
-                    </span>
-                  )}
-
-                  <button
-                    type="button"
-                    disabled={selected}
-                    onClick={() => onSelectChannel(item)}
-                    className="inline-flex items-center gap-1 rounded-lg border border-gray-300 bg-white px-3 py-1.5 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50"
-                  >
-                    Select <ArrowRight size={15} />
-                  </button>
                 </article>
               )
             })}
           </div>
+
+          <div className="mt-6 border-t border-slate-200 pt-5">
+            <h3 className="text-sm font-semibold text-slate-900">Account and connection</h3>
+            <div className="mt-3 divide-y divide-slate-200 border-y border-slate-200">
+              <div className="flex flex-col gap-3 py-4 sm:flex-row sm:items-center sm:justify-between">
+                <div>
+                  <p className="text-sm font-medium text-slate-800">YouTube connection</p>
+                  <p className="mt-0.5 text-xs leading-5 text-slate-500">Stop syncing data from the connected channel.</p>
+                </div>
+                <button
+                  type="button"
+                  className="channel-settings-action channel-settings-action--disconnect"
+                >
+                  Disconnect YouTube Channel
+                </button>
+              </div>
+              <div className="flex flex-col gap-3 py-4 sm:flex-row sm:items-center sm:justify-between">
+                <div>
+                  <p className="text-sm font-medium text-slate-800">LeadHive account</p>
+                  <p className="mt-0.5 text-xs leading-5 text-slate-500">Permanently remove this account and its saved data.</p>
+                </div>
+                <button
+                  type="button"
+                  className="channel-settings-action channel-settings-action--delete"
+                >
+                  Delete Account
+                </button>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
+
     </section>
   )
 }

@@ -89,7 +89,7 @@ export function LiveDemo() {
           </Link>
           <Link
             to="/flow?step=1"
-            className="inline-flex items-center gap-1 rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700"
+            className="lh-primary-action inline-flex items-center gap-1 rounded-lg px-4 py-2 text-sm font-medium"
           >
             Connect your channel <ArrowRight size={15} aria-hidden="true" />
           </Link>
@@ -160,7 +160,7 @@ export function LiveDemo() {
                   </div>
 
                   <div className="mt-4 flex items-start gap-3">
-                    <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-blue-600 text-xs font-bold text-white">
+                    <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[#2cc1df] text-xs font-bold text-[#07101d]">
                       {brandName.slice(0, 2).toUpperCase()}
                     </div>
                     <div className="min-w-0">
@@ -198,7 +198,7 @@ export function LiveDemo() {
                 {/* Comment box */}
                 <form onSubmit={handleSubmit} className="rounded-2xl border border-gray-200 bg-white p-4 shadow-sm">
                   <div className="flex items-start gap-3">
-                    <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-blue-600 text-[10px] font-bold text-white">
+                    <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[#2cc1df] text-[10px] font-bold text-[#07101d]">
                       YOU
                     </div>
                     <div className="min-w-0 flex-1">
@@ -238,7 +238,7 @@ export function LiveDemo() {
                           <button
                             type="submit"
                             disabled={!draft.trim() || sending}
-                            className="inline-flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 disabled:opacity-50"
+                            className="lh-primary-action inline-flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-medium disabled:opacity-50"
                           >
                             {sending ? <Loader2 size={14} className="animate-spin" /> : <Send size={14} />}
                             Comment
@@ -314,7 +314,7 @@ function VisitorComment({ comment }) {
   return (
     <div className="space-y-2">
       <div className="flex items-start gap-2">
-        <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-blue-600 text-[9px] font-bold text-white">
+        <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-[#2cc1df] text-[9px] font-bold text-[#07101d]">
           YOU
         </div>
         <div className="min-w-0 flex-1">

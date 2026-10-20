@@ -212,7 +212,7 @@ export function PersonaSelection({ channel, profile, onProfileSaved }) {
             <button
               type="submit"
               disabled={saving || isSaved}
-              className="rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 disabled:opacity-50"
+              className="lh-primary-action rounded-lg px-4 py-2 text-sm font-medium disabled:opacity-50"
             >
               {saving ? 'Saving...' : isSaved ? 'Saved' : 'Save persona'}
             </button>

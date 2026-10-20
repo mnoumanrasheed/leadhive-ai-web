@@ -285,7 +285,7 @@ export function ReplySection({ channel, video }) {
               type="button"
               onClick={handlePost}
               disabled={!canPost}
-              className="inline-flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 disabled:opacity-50"
+              className="lh-primary-action inline-flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-medium disabled:opacity-50"
             >
               <Wand2 size={14} /> Generate &amp; Post Replies
             </button>
