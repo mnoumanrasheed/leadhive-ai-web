@@ -119,3 +119,11 @@ export const getAuthChannels = (options = {}) =>
 
 // POST /auth/logout: clears the JWT cookie
 export const logoutUser = () => youtubeRequest('/auth/logout', { method: 'POST' })
+
+// POST /auth/google/disconnect: revokes the saved Google/YouTube connection
+export const disconnectYoutube = () =>
+  youtubeRequest('/auth/google/disconnect', { method: 'POST', timeoutMs: AUTH_TIMEOUT_MS })
+
+// DELETE /auth/account: permanently deletes the signed-in LeadHive account
+export const deleteAccount = () =>
+  youtubeRequest('/auth/account', { method: 'DELETE', timeoutMs: AUTH_TIMEOUT_MS })

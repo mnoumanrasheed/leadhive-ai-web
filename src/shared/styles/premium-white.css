@@ -150,7 +150,7 @@ p, .hero-lead, .hero-metric-line, .problem-editorial-copy>p:not(.section-label),
 .preloader-progress i { background: linear-gradient(90deg, #20A9C5, #2BC1DF) !important; box-shadow: 0 0 12px rgba(43, 193, 223, 0.6) !important; }
 
 /* Footer - Original Dark Anchor Theme */
-footer, .site-shell>footer { border-top: 1px solid rgba(255, 255, 255, 0.08) !important; background: #02060e !important; color: #dce5ee !important; }
+footer, .site-shell>footer { border-top: 1px solid rgba(44, 193, 223, 0.20) !important; background: #07101d !important; color: #dce5ee !important; }
 footer .footer-brand img { width: auto; height: 44px !important; max-width: 225px !important; object-fit: contain !important; filter: none !important; }
 footer .footer-brand p { color: #91a1b0 !important; opacity: 1 !important; font-weight: 450 !important; }
 footer .footer-contact small, footer .footer-brand small { color: #718195 !important; opacity: 1 !important; }
@@ -162,6 +162,6 @@ footer .footer-contact svg { color: #2BC1DF !important; }
 footer .footer-grid a:after { background: #2BC1DF !important; }
 footer .footer-grid a:hover { color: #FFFFFF !important; opacity: 1 !important; }
 footer .footer-contact a:hover { color: #2BC1DF !important; }
-footer .footer-bottom { border-top: 1px solid rgba(255, 255, 255, 0.08) !important; color: #718195 !important; opacity: 1 !important; font-weight: 500 !important; }
+footer .footer-bottom { border-top: 1px solid rgba(44, 193, 223, 0.12) !important; color: #718195 !important; opacity: 1 !important; font-weight: 500 !important; }
 footer .footer-bottom a { color: #8fa0ae !important; font-weight: 500 !important; }
 footer .footer-bottom a:hover { color: #2BC1DF !important; opacity: 1 !important; }

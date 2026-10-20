@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import { useSearchParams } from 'react-router'
 import { ArrowRight, Check, Link2 } from 'lucide-react'
+import { deleteAccount, disconnectYoutube } from '../api'
 import { useYoutubeResource } from '../hooks'
 
 // Full-page redirect to Google (the Vite proxy forwards /auth to the backend)
@@ -46,9 +47,12 @@ function formatCount(value) {
   return Number.isFinite(n) ? n.toLocaleString() : ''
 }
 
-export function ChannelSelection({ channel, onSelectChannel }) {
+export function ChannelSelection({ channel, onSelectChannel, onDisconnected, onAccountDeleted }) {
   const [params] = useSearchParams()
   const [refresh, setRefresh] = useState(0)
+  const [accountAction, setAccountAction] = useState('')
+  const [accountActionError, setAccountActionError] = useState('')
+  const [accountActionSuccess, setAccountActionSuccess] = useState('')
   const { data, error, status, loading } = useYoutubeResource('/auth/channels', refresh)
 
   // Backend sent us back here with ?auth=failed&reason=...
@@ -59,6 +63,45 @@ export function ChannelSelection({ channel, onSelectChannel }) {
   const hardError = error && !notConnected
   const channels = Array.isArray(data) ? data.map(toChannel) : []
   const hasChannels = channels.length > 0
+
+  async function handleDisconnect() {
+    const confirmed = window.confirm(
+      'Disconnect your YouTube channel from LeadHive? You can connect it again later.',
+    )
+    if (!confirmed) return
+
+    setAccountAction('disconnect')
+    setAccountActionError('')
+    setAccountActionSuccess('')
+    try {
+      await disconnectYoutube()
+      onDisconnected?.()
+      setAccountActionSuccess('YouTube channel disconnected successfully.')
+      setRefresh(value => value + 1)
+    } catch (actionError) {
+      setAccountActionError(actionError?.message || 'Could not disconnect the YouTube channel. Please try again.')
+    } finally {
+      setAccountAction('')
+    }
+  }
+
+  async function handleDeleteAccount() {
+    const confirmed = window.confirm(
+      'Permanently delete your LeadHive account and all saved data? This action cannot be undone.',
+    )
+    if (!confirmed) return
+
+    setAccountAction('delete')
+    setAccountActionError('')
+    setAccountActionSuccess('')
+    try {
+      await deleteAccount()
+      onAccountDeleted?.()
+    } catch (actionError) {
+      setAccountActionError(actionError?.message || 'Could not delete the account. Please try again.')
+      setAccountAction('')
+    }
+  }
 
   return (
     <section className="space-y-6">
@@ -247,9 +290,12 @@ export function ChannelSelection({ channel, onSelectChannel }) {
                 </div>
                 <button
                   type="button"
+                  onClick={handleDisconnect}
+                  disabled={Boolean(accountAction)}
+                  aria-busy={accountAction === 'disconnect'}
                   className="channel-settings-action channel-settings-action--disconnect"
                 >
-                  Disconnect YouTube Channel
+                  {accountAction === 'disconnect' ? 'Disconnecting...' : 'Disconnect YouTube Channel'}
                 </button>
               </div>
               <div className="flex flex-col gap-3 py-4 sm:flex-row sm:items-center sm:justify-between">
@@ -259,12 +305,21 @@ export function ChannelSelection({ channel, onSelectChannel }) {
                 </div>
                 <button
                   type="button"
+                  onClick={handleDeleteAccount}
+                  disabled={Boolean(accountAction)}
+                  aria-busy={accountAction === 'delete'}
                   className="channel-settings-action channel-settings-action--delete"
                 >
-                  Delete Account
+                  {accountAction === 'delete' ? 'Deleting...' : 'Delete Account'}
                 </button>
               </div>
             </div>
+            {accountActionError && (
+              <p role="alert" className="mt-3 text-sm text-red-700">{accountActionError}</p>
+            )}
+            {accountActionSuccess && (
+              <p role="status" className="mt-3 text-sm text-green-700">{accountActionSuccess}</p>
+            )}
           </div>
         </div>
       </div>
