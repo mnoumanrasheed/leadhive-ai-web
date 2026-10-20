@@ -1,7 +1,7 @@
 // Controls the 5-step LeadHive flow: Channel -> Persona -> Video -> Reply -> Stats.
 // The current step lives in the URL (/flow?step=2) so refresh and the browser Back button work.
 import { useEffect, useState } from "react";
-import { Link, useSearchParams } from "react-router";
+import { Link, useNavigate, useSearchParams } from "react-router";
 import { ArrowUpRight, Play } from "lucide-react";
 import { ChannelSelection } from "../components/ChannelSelection";
 import { PersonaSelection } from "../components/PersonaSelection";
@@ -46,6 +46,7 @@ function useStoredState(key) {
 
 export const FlowWidget = () => {
   const [searchParams, setSearchParams] = useSearchParams();
+  const navigate = useNavigate();
 
   // Channel picked in step 1: { id, name, subscribers, views }. Later steps read channel.id.
   const [channel, setChannel] = useStoredState("leadhive.flow.channel");
@@ -109,6 +110,25 @@ export const FlowWidget = () => {
       setVideo(null);
     }
     setChannel(next);
+  };
+
+  const clearFlowState = () => {
+    setChannel(null);
+    setProfile(null);
+    setVideo(null);
+  };
+
+  const accountDeleted = () => {
+    clearFlowState();
+    try {
+      localStorage.removeItem("leadhive.flow.channel");
+      localStorage.removeItem("leadhive.flow.profile");
+      localStorage.removeItem("leadhive.flow.video");
+      sessionStorage.removeItem("leadhive.youtube.auth-return");
+    } catch {
+      // Storage can be unavailable in restricted/private browser contexts.
+    }
+    navigate("/", { replace: true });
   };
 
   // Exit demo: log out on the backend (clears the auth cookie), reset the flow, go back to step 1
@@ -208,6 +228,8 @@ export const FlowWidget = () => {
             key={sessionKey}
             channel={channel}
             onSelectChannel={selectChannel}
+            onDisconnected={clearFlowState}
+            onAccountDeleted={accountDeleted}
             profile={profile}
             onProfileSaved={setProfile}
             video={video}
