@@ -234,7 +234,7 @@ export function VideoSelection({ channel, video, onVideoSaved }) {
                     />
                     <span
                       aria-hidden="true"
-                      className="flex h-full w-full items-center justify-center rounded-full text-transparent peer-checked:bg-blue-600 peer-checked:text-white"
+                      className="flex h-full w-full items-center justify-center rounded-full text-transparent peer-checked:bg-[#2cc1df] peer-checked:text-[#07101d]"
                     >
                       <Check size={14} />
                     </span>
@@ -244,7 +244,7 @@ export function VideoSelection({ channel, video, onVideoSaved }) {
                     <Play size={12} fill="currentColor" /> YouTube
                   </span>
                   {isSelected && (
-                    <span className="absolute bottom-3 left-3 z-10 inline-flex items-center gap-1 rounded-full bg-blue-600 px-2 py-0.5 text-xs font-medium text-white">
+                    <span className="absolute bottom-3 left-3 z-10 inline-flex items-center gap-1 rounded-full bg-[#2cc1df] px-2 py-0.5 text-xs font-medium text-[#07101d]">
                       <Check size={13} /> Selected
                     </span>
                   )}
@@ -318,7 +318,7 @@ export function VideoSelection({ channel, video, onVideoSaved }) {
             type="button"
             onClick={handleSave}
             disabled={!selected || saving || isSaved || needsDescription}
-            className="rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 disabled:opacity-50"
+            className="lh-primary-action rounded-lg px-4 py-2 text-sm font-medium disabled:opacity-50"
           >
             {saving ? 'Saving...' : isSaved ? 'Saved' : 'Save selection'}
           </button>

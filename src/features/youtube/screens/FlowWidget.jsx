@@ -161,7 +161,7 @@ export const FlowWidget = () => {
                   aria-current={isActive ? "step" : undefined}
                   className={`whitespace-nowrap rounded-lg px-3 py-2 text-sm font-medium transition-colors ${
                     isActive
-                      ? "bg-blue-50 text-blue-700"
+                      ? "bg-[#e5f9fc] text-[#168ca1]"
                       : reachable
                       ? "text-gray-600 hover:bg-gray-100 hover:text-gray-900"
                       : "cursor-not-allowed text-gray-400"
@@ -176,7 +176,7 @@ export const FlowWidget = () => {
           {/* No-login interactive demo (sample video, simulated replies) */}
           <Link
             to="/live-demo"
-            className="inline-flex shrink-0 items-center gap-1.5 rounded-lg bg-blue-600 px-3 py-2 text-sm font-medium text-white hover:bg-blue-700"
+            className="lh-primary-action inline-flex shrink-0 items-center gap-1.5 rounded-lg px-3 py-2 text-sm font-medium"
           >
             <Play size={14} className="fill-current" aria-hidden="true" />
             <span className="hidden sm:inline">Interactive Demo</span>
@@ -228,7 +228,7 @@ export const FlowWidget = () => {
           <button
             onClick={nextStep}
             disabled={!canGoNext}
-            className="rounded bg-blue-600 px-4 py-2 text-white disabled:opacity-50"
+            className="lh-primary-action rounded px-4 py-2 disabled:opacity-50"
           >
             Next
           </button>

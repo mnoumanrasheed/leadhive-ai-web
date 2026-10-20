@@ -15,7 +15,7 @@ export function FlowLoader({ message = 'Loading...' }) {
       {/* Indeterminate bar: a short segment sliding across the track (static if reduced motion) */}
       <div className="h-1 w-56 overflow-hidden rounded-full bg-gray-200">
         <motion.i
-          className="block h-full w-1/3 rounded-full bg-blue-600"
+          className="block h-full w-1/3 rounded-full bg-[#2cc1df]"
           animate={reduced ? undefined : { x: ['-100%', '300%'] }}
           transition={{ duration: 1.2, repeat: Infinity, ease: 'easeInOut' }}
         />

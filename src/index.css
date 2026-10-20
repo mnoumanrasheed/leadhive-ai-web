@@ -71,3 +71,74 @@
 @keyframes leadhive-spin {
   to { transform: rotate(360deg); }
 }
+
+/* Channel account actions intentionally live after the global button reset. */
+.channel-settings-action {
+  width: fit-content;
+  min-height: 38px;
+  flex: 0 0 auto;
+  padding: 0 15px;
+  border-radius: 8px;
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 1;
+  white-space: nowrap;
+  transition: background-color 160ms ease, border-color 160ms ease,
+    color 160ms ease, box-shadow 160ms ease, transform 160ms ease;
+}
+
+.channel-settings-action:hover {
+  transform: translateY(-1px);
+}
+
+.channel-settings-action:active {
+  transform: translateY(0);
+}
+
+.channel-settings-action--disconnect {
+  border: 1px solid #147f94;
+  background: #147f94;
+  color: #ffffff;
+  box-shadow: 0 1px 2px rgba(7, 16, 29, 0.12), 0 7px 16px -10px rgba(20, 127, 148, 0.75);
+}
+
+.channel-settings-action--disconnect:hover {
+  border-color: #0f6d80;
+  background: #0f6d80;
+  box-shadow: 0 2px 4px rgba(7, 16, 29, 0.14), 0 10px 20px -12px rgba(15, 109, 128, 0.9);
+}
+
+.channel-settings-action--delete {
+  border: 1px solid #e3a6aa;
+  background: #ffffff;
+  color: #a53a42;
+  box-shadow: 0 1px 2px rgba(7, 16, 29, 0.06);
+}
+
+.channel-settings-action--delete:hover {
+  border-color: #cf777f;
+  background: #fff7f7;
+  color: #8f2932;
+  box-shadow: 0 2px 5px rgba(143, 41, 50, 0.1);
+}
+
+/* Shared LeadHive primary action color across the YouTube workspace. */
+.lh-primary-action {
+  border: 1px solid #2cc1df !important;
+  background: #2cc1df !important;
+  color: #07101d !important;
+  box-shadow: 0 1px 2px rgba(7, 16, 29, 0.1), 0 8px 18px -12px rgba(44, 193, 223, 0.9);
+  transition: background-color 160ms ease, border-color 160ms ease,
+    box-shadow 160ms ease, transform 160ms ease;
+}
+
+.lh-primary-action:hover:not(:disabled) {
+  border-color: #20adc9 !important;
+  background: #20adc9 !important;
+  box-shadow: 0 2px 4px rgba(7, 16, 29, 0.12), 0 11px 22px -13px rgba(32, 173, 201, 0.95);
+  transform: translateY(-1px);
+}
+
+.lh-primary-action:active:not(:disabled) {
+  transform: translateY(0);
+}
