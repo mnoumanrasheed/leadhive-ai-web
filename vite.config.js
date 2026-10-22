@@ -6,8 +6,16 @@ import path from 'node:path'
 export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, import.meta.dirname, '')
   const backendUrl = env.BACKEND_URL?.trim()
+  const recaptchaSiteKey = env.VITE_RECAPTCHA_SITE_KEY?.trim()
   if (!backendUrl) {
     throw new Error('BACKEND_URL must be set in the project .env file.')
+  }
+
+  // Vite only exposes variables beginning with VITE_ to browser code. The site
+  // key is public by design, but building without it creates a form that can
+  // never render its required reCAPTCHA challenge.
+  if (mode === 'production' && !recaptchaSiteKey) {
+    throw new Error('VITE_RECAPTCHA_SITE_KEY must be set for a production build.')
   }
 
   try {

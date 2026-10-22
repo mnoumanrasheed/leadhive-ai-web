@@ -2,7 +2,10 @@ import { useEffect, useRef, useState } from 'react'
 import { AlertCircle, ArrowRight, CheckCircle2, Mail } from 'lucide-react'
 import { Reveal } from '../../../shared/ui/Reveal'
 
-const recaptchaSiteKey = import.meta.env.VITE_RECAPTCHA_SITE_KEY
+const recaptchaSiteKey = import.meta.env.VITE_RECAPTCHA_SITE_KEY?.trim()
+const recaptchaConfigurationError = !recaptchaSiteKey || recaptchaSiteKey === 'PASTE_RECAPTCHA_SITE_KEY_HERE'
+  ? 'reCAPTCHA is not configured. Please contact support.'
+  : ''
 
 let recaptchaScriptPromise = null
 
@@ -25,6 +28,9 @@ function loadRecaptchaScript() {
       script.onerror = () => reject(new Error('Failed to load Google reCAPTCHA script.'))
       document.head.appendChild(script)
     })
+    // A transient network/CSP failure must not make future mounts permanently
+    // reuse a rejected promise.
+    recaptchaScriptPromise.catch(() => { recaptchaScriptPromise = null })
   }
   return recaptchaScriptPromise
 }
@@ -49,12 +55,13 @@ export function CTA() {
   const [status, setStatus] = useState('idle')
   const [feedback, setFeedback] = useState('')
   const [captchaToken, setCaptchaToken] = useState('')
+  const [captchaError, setCaptchaError] = useState('')
   const recaptchaRef = useRef(null)
   const recaptchaWidgetId = useRef(null)
 
   useEffect(() => {
     let cancelled = false
-    if (!recaptchaSiteKey || recaptchaSiteKey === 'PASTE_RECAPTCHA_SITE_KEY_HERE') return
+    if (recaptchaConfigurationError) return
 
     async function initRecaptcha() {
       try {
@@ -63,12 +70,16 @@ export function CTA() {
         if (cancelled || !recaptchaRef.current || recaptchaWidgetId.current !== null || recaptchaRef.current.hasChildNodes()) return
         recaptchaWidgetId.current = window.grecaptcha?.render(recaptchaRef.current, {
           sitekey: recaptchaSiteKey,
-          callback: (token) => { setCaptchaToken(token); setFeedback(''); setStatus('idle') },
+          callback: (token) => { setCaptchaToken(token); setCaptchaError(''); setFeedback(''); setStatus('idle') },
           'expired-callback': () => setCaptchaToken(''),
-          'error-callback': () => setCaptchaToken(''),
+          'error-callback': () => {
+            setCaptchaToken('')
+            setCaptchaError('reCAPTCHA could not be loaded. Please check your connection and try again.')
+          },
         }) ?? null
       } catch (error) {
         console.error('[LeadHive reCAPTCHA] initialization error:', error)
+        setCaptchaError('reCAPTCHA could not be loaded. Please disable content blockers and refresh the page.')
       }
     }
     initRecaptcha()
@@ -87,7 +98,7 @@ export function CTA() {
     if (status === 'submitting') return
     if (!captchaToken) {
       setStatus('error')
-      setFeedback('Please complete the reCAPTCHA checkbox before submitting.')
+      setFeedback(recaptchaConfigurationError || captchaError || 'Please complete the reCAPTCHA checkbox before submitting.')
       return
     }
     setStatus('submitting')
@@ -182,6 +193,7 @@ export function CTA() {
                   <input name="website" tabIndex={-1} autoComplete="off" disabled={status === 'submitting'} />
                 </label>
                 <div className="recaptcha-wrap" ref={recaptchaRef} />
+                {(recaptchaConfigurationError || captchaError) && <p className="recaptcha-error" role="alert">{recaptchaConfigurationError || captchaError}</p>}
                 <button className="cta-submit-button" type="submit" disabled={status === 'submitting'}>
                   {status === 'submitting' ? 'Sending request...' : 'Schedule My Demo'} <ArrowRight />
                 </button>
