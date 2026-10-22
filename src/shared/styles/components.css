@@ -190,6 +190,7 @@
 .demo-form input::placeholder { color: #718195; }
 .form-honeypot { position: absolute; left: -9999px; }
 .recaptcha-wrap { min-height: 78px; margin-top: 20px; overflow: hidden; }
+.recaptcha-error { margin-top: -8px; color: #fda4af; font-size: 12px; line-height: 1.4; }
 .cta-submit-button { position: relative; width: 100%; height: 52px; overflow: hidden; display: flex; align-items: center; justify-content: center; gap: 9px; margin-top: 16px; border-radius: 8px; background: #2cc1df; color: #021018; font-size: 14px; font-weight: 800; transition: background .2s ease,transform .2s ease; }
 .cta-submit-button:before { content: ""; position: absolute; inset: 0; transform: translateX(-110%); background: linear-gradient(100deg,transparent 30%,rgba(255,255,255,.3),transparent 70%); transition: transform .45s ease; }
 .cta-submit-button:hover:not(:disabled) { background: #63baca; }
